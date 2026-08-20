@@ -190,12 +190,7 @@ Computer Science & Engineering
 Build a reliable and explainable AI agent that helps recruiters screen and prioritize candidates faster while keeping humans in control of the final hiring decision.
 
 
-**Tip:** Replace `YOUR-USERNAME` and `Your Name` before pushing it to GitHub.
 
-Take my name as Yashaswini S
-
-Memory updated
-Sure. Replace the Author section with:
 
 
 n AI-Powered Resume Screening Agent
