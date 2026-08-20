@@ -1,0 +1,26 @@
+[
+  {
+    "id": "senior-full-stack-engineer",
+    "title": "Senior Full Stack Engineer (React/Node)",
+    "description": "Position: Senior Full Stack Engineer\nExperience: 5+ years of software engineering experience.\nLocation: Remote / Hybrid\n\nTechnical Requirements:\n- Expert level proficiency in React.js and modern state management (Redux, Context API).\n- Strong experience in Node.js, Express, and backend APIs.\n- Experience with databases like PostgreSQL, MongoDB, or Redis.\n- Familiarity with TypeScript and modern ES6+ JavaScript.\n- Experience with cloud providers (AWS, GCP) and CI/CD pipelines (GitHub Actions, Docker).\n\nPreferred Qualifications:\n- Solid understanding of Web Performance Optimization and accessibility (a11y).\n- Excellent written and verbal communication skills.\n- Bachelor's degree in Computer Science or a related engineering field.",
+    "weights": {
+      "skills": 40,
+      "experience": 30,
+      "education": 20,
+      "culturalFit": 10
+    },
+    "createdAt": "2026-08-20T14:17:42+05:30"
+  },
+  {
+    "id": "ai-ml-product-manager",
+    "title": "AI/ML Product Manager",
+    "description": "Position: Product Manager, Artificial Intelligence\nExperience: 3+ years managing AI/ML powered features or software products.\nLocation: San Francisco, CA / Hybrid\n\nKey Responsibilities:\n- Define product strategy and roadmap for our LLM-powered agent tools.\n- Collaborate with Machine Learning engineers and Data Scientists to design model evaluations.\n- Author clear, structured Product Requirement Documents (PRDs).\n- Communicate roadmap and performance metrics to executive leadership.\n\nQualifications:\n- Strong analytical skills; experience writing SQL queries and interpreting data dashboards.\n- Deep understanding of NLP, Generative AI models (Gemini, GPT), and prompt engineering.\n- Excellent stakeholder communication skills.\n- MBA or Technical Degree (Computer Science, Data Science, Math) preferred.",
+    "weights": {
+      "skills": 40,
+      "experience": 30,
+      "education": 20,
+      "culturalFit": 10
+    },
+    "createdAt": "2026-08-20T14:17:42+05:30"
+  }
+]

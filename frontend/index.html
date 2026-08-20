@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="AI-Powered Resume Screening Agent - Automated parsing, matching, and candidate ranking." />
+    
+    <!-- Premium Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <title>AI Resume Screening Agent</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app-container">
+      
+      <!-- Top Navigation Header -->
+      <header class="app-header glass-panel">
+        <div class="logo-wrapper">
+          <i data-lucide="brain-circuit" class="text-accent-primary logo-icon"></i>
+          <h1 class="text-gradient">AI Resume Screening Agent</h1>
+        </div>
+
+        <div class="header-actions">
+          <div id="api-status" class="api-status-badge inactive">
+            <span class="pulse-dot"></span>
+            <span id="api-status-text">Gemini 1.5 Flash: Setup Required</span>
+          </div>
+
+          <button id="btn-settings" class="btn btn-secondary btn-icon" title="Configure API Settings">
+            <i data-lucide="settings"></i> API Key
+          </button>
+        </div>
+      </header>
+
+      <!-- Main Layout -->
+      <main class="app-layout">
+        
+        <!-- Left configuration column -->
+        <section class="app-sidebar">
+          <div id="error-banner" class="error-banner glass-panel hidden">
+            <i data-lucide="alert-triangle"></i>
+            <span id="error-text"></span>
+          </div>
+
+          <!-- Job Selector Card -->
+          <div class="job-selector-card glass-panel card-header-glow">
+            <div class="card-header-row">
+              <i data-lucide="folder" class="text-accent-primary" style="width: 18px; height: 18px;"></i>
+              <h3>Job Position</h3>
+            </div>
+            <div class="card-body-row">
+              <div class="job-selector-row">
+                <select id="job-select" class="form-input select-job-dropdown"></select>
+              </div>
+              <div class="job-action-buttons">
+                <button id="btn-save-job" class="btn btn-secondary btn-sm" title="Save changes to this position">
+                  <i data-lucide="save" style="width: 12px; height: 12px;"></i> Save
+                </button>
+                <button id="btn-new-job" class="btn btn-secondary btn-sm" title="Create a new position">
+                  <i data-lucide="plus" style="width: 12px; height: 12px;"></i> New
+                </button>
+                <button id="btn-delete-job" class="btn btn-secondary btn-sm" title="Delete this position">
+                  <i data-lucide="trash-2" style="width: 12px; height: 12px;"></i> Delete
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Job description card -->
+          <div class="jd-card glass-panel card-header-glow">
+            <div class="jd-header">
+              <div class="header-title">
+                <i data-lucide="briefcase" class="text-accent-primary"></i>
+                <h3>Job Requirements</h3>
+              </div>
+            </div>
+
+            <div class="jd-body">
+              <div class="form-group">
+                <label class="form-label">Job Description</label>
+                <textarea id="jd-textarea" placeholder="Paste job description, technical requirements, and target experience here..." class="form-textarea jd-textarea"></textarea>
+              </div>
+
+              <!-- Sliding weight controls -->
+              <div class="weights-section">
+                <div class="weights-title">
+                  <i data-lucide="sliders" class="text-accent-secondary"></i>
+                  <h4>Evaluation Weights</h4>
+                </div>
+
+                <div class="weight-visualizer">
+                  <div id="segment-skills" class="weight-segment skills" style="width: 40%"></div>
+                  <div id="segment-experience" class="weight-segment experience" style="width: 30%"></div>
+                  <div id="segment-education" class="weight-segment education" style="width: 20%"></div>
+                  <div id="segment-cultural" class="weight-segment cultural" style="width: 10%"></div>
+                </div>
+
+                <div class="sliders-grid">
+                  <div class="slider-item">
+                    <div class="slider-label-row">
+                      <span>Skills</span>
+                      <span id="label-skills" class="weight-badge skills-badge">40%</span>
+                    </div>
+                    <input type="range" id="slider-skills" min="0" max="100" value="40" class="weight-slider slider-skills" />
+                  </div>
+
+                  <div class="slider-item">
+                    <div class="slider-label-row">
+                      <span>Experience</span>
+                      <span id="label-experience" class="weight-badge experience-badge">30%</span>
+                    </div>
+                    <input type="range" id="slider-experience" min="0" max="100" value="30" class="weight-slider slider-experience" />
+                  </div>
+
+                  <div class="slider-item">
+                    <div class="slider-label-row">
+                      <span>Education</span>
+                      <span id="label-education" class="weight-badge education-badge">20%</span>
+                    </div>
+                    <input type="range" id="slider-education" min="0" max="100" value="20" class="weight-slider slider-education" />
+                  </div>
+
+                  <div class="slider-item">
+                    <div class="slider-label-row">
+                      <span>Cultural Fit</span>
+                      <span id="label-cultural" class="weight-badge cultural-badge">10%</span>
+                    </div>
+                    <input type="range" id="slider-cultural" min="0" max="100" value="10" class="weight-slider slider-cultural" />
+                  </div>
+                </div>
+
+                <div class="weights-status-row">
+                  <div class="status-indicator">
+                    Total Weight: <strong id="total-weight-text" class="text-success">100%</strong>
+                  </div>
+                  <button id="btn-balance" class="btn btn-secondary btn-sm auto-normalize-btn hidden">
+                    <i data-lucide="refresh-cw"></i> Auto-Balance
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Right content column -->
+        <section class="app-main-content">
+          <div class="content-grid-stack">
+            
+            <!-- Step 1: Resume Upload queue -->
+            <div class="uploader-card glass-panel card-header-glow">
+              <div class="uploader-header">
+                <div class="header-title">
+                  <i data-lucide="upload-cloud" class="text-accent-primary"></i>
+                  <h3>Resume Pool</h3>
+                </div>
+                <button id="btn-clear-pool" class="btn btn-secondary btn-sm hidden">Clear Pool</button>
+              </div>
+
+              <div class="uploader-body">
+                <div id="dropzone" class="dropzone">
+                  <input type="file" id="file-input" multiple accept=".pdf,.docx,.txt" style="display: none" />
+                  <i data-lucide="upload-cloud" class="upload-icon text-accent-primary"></i>
+                  <div class="dropzone-text">
+                    <span class="primary-text">Drag & Drop Resumes here</span>
+                    <span class="secondary-text">or click to browse files from your computer</span>
+                    <span class="formats-text">Supports PDF (via PyMuPDF), DOCX (via python-docx), and TXT</span>
+                  </div>
+                </div>
+
+                <div id="queue-section" class="queue-section hidden">
+                  <div class="queue-summary">
+                    <span id="queue-count-text">0 Candidates loaded</span>
+                    <span id="progress-label" class="progress-label hidden">Processing: 0 / 0 (0%)</span>
+                  </div>
+
+                  <div id="batch-progress-bar-container" class="batch-progress-bar-container hidden">
+                    <div id="batch-progress-bar" class="batch-progress-bar" style="width: 0%"></div>
+                  </div>
+
+                  <div id="file-list" class="file-list"></div>
+
+                  <div class="action-row">
+                    <button id="btn-run-screening" class="btn btn-primary btn-full animate-glow">
+                      <i data-lucide="play"></i> Run Automated AI Screening
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 2: Pool Analytics Dash -->
+            <div id="analytics-card" class="analytics-card glass-panel card-header-glow hidden animate-fade-in">
+              <div class="analytics-header">
+                <i data-lucide="bar-chart-3" class="text-accent-primary"></i>
+                <h3>Pool Analytics</h3>
+              </div>
+              <div class="analytics-body">
+                <div class="metrics-grid">
+                  <div class="metric-card glass-panel">
+                    <i data-lucide="users" class="metric-icon text-accent-primary"></i>
+                    <div class="metric-info">
+                      <span id="metric-total-count" class="metric-val">0</span>
+                      <span class="metric-label">Total Candidates</span>
+                    </div>
+                  </div>
+                  <div class="metric-card glass-panel">
+                    <i data-lucide="percent" class="metric-icon text-accent-secondary"></i>
+                    <div class="metric-info">
+                      <span id="metric-avg-score" class="metric-val">0%</span>
+                      <span class="metric-label">Average Match</span>
+                    </div>
+                  </div>
+                  <div class="metric-card glass-panel">
+                    <i data-lucide="user-check" class="metric-icon text-success"></i>
+                    <div class="metric-info">
+                      <span id="metric-strong-count" class="metric-val">0</span>
+                      <span class="metric-label">Strong Matches</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Shortlist distribution -->
+                <div class="distribution-section">
+                  <div class="section-title-row">
+                    <i data-lucide="trending-up" class="text-accent-primary"></i>
+                    <h4>Match Recommendations Distribution</h4>
+                  </div>
+                  <div class="distribution-bar">
+                    <div id="dist-strong" class="dist-segment strong" style="width: 0%"></div>
+                    <div id="dist-potential" class="dist-segment potential" style="width: 0%"></div>
+                    <div id="dist-low" class="dist-segment low" style="width: 0%"></div>
+                  </div>
+                  <div class="distribution-legend">
+                    <div class="legend-item">
+                      <span class="dot strong"></span>
+                      <span id="legend-strong-text">Strong: 0 (0%)</span>
+                    </div>
+                    <div class="legend-item">
+                      <span class="dot potential"></span>
+                      <span id="legend-potential-text">Potential: 0 (0%)</span>
+                    </div>
+                    <div class="legend-item">
+                      <span class="dot low"></span>
+                      <span id="legend-low-text">Low Match: 0 (0%)</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Skills comparisons -->
+                <div class="skills-insights-grid">
+                  <div class="skills-trend-box glass-panel">
+                    <h4 class="text-success text-xs font-bold uppercase tracking-wider mb-3">Top Strengths In Pool</h4>
+                    <div id="strengths-list" class="skills-list"></div>
+                  </div>
+                  <div class="skills-trend-box glass-panel">
+                    <h4 class="text-error text-xs font-bold uppercase tracking-wider mb-3">Top Talent Gaps In Pool</h4>
+                    <div id="gaps-list" class="skills-list"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 3: Candidate Ranked Output Table -->
+            <div id="list-card" class="list-card glass-panel card-header-glow">
+              <div class="list-header">
+                <div class="header-title">
+                  <i data-lucide="award" class="text-accent-primary"></i>
+                  <h3>Screened Candidates</h3>
+                </div>
+                <div id="export-actions" class="hidden" style="display: flex; gap: 8px;">
+                  <button id="btn-export-csv" class="btn btn-secondary btn-sm"><i data-lucide="download"></i> Export CSV</button>
+                  <button id="btn-export-json" class="btn btn-secondary btn-sm"><i data-lucide="download"></i> Export JSON</button>
+                </div>
+              </div>
+
+              <div id="empty-list-state" class="empty-state">
+                <div class="empty-icon-wrapper">
+                  <i data-lucide="user" class="text-tertiary"></i>
+                </div>
+                <p>No candidates screened yet. Upload resumes and run the screening agent.</p>
+              </div>
+
+              <div id="list-body" class="list-body hidden">
+                <div class="controls-row">
+                  <div class="search-box">
+                    <i data-lucide="search" class="search-icon"></i>
+                    <input type="text" id="search-input" placeholder="Search candidates by name, email, or skills..." class="form-input search-input" />
+                  </div>
+                  <div class="filter-box">
+                    <i data-lucide="filter" class="filter-icon"></i>
+                    <select id="filter-select" class="form-input filter-select">
+                      <option value="All">All Recommendations</option>
+                      <option value="Strong Match">Strong Match</option>
+                      <option value="Potential Match">Potential Match</option>
+                      <option value="Low Match">Low Match</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="table-responsive">
+                  <table class="candidates-table">
+                    <thead>
+                      <tr>
+                        <th id="th-name" class="sortable">Candidate Name <i data-lucide="arrow-up-down" style="width:12px; height:12px; display:inline;"></i></th>
+                        <th>Match Status</th>
+                        <th id="th-exp" class="sortable text-center">Exp. (Yrs) <i data-lucide="arrow-up-down" style="width:12px; height:12px; display:inline;"></i></th>
+                        <th>Scores Breakdown</th>
+                        <th id="th-score" class="sortable text-center">Overall Score <i data-lucide="arrow-up-down" style="width:12px; height:12px; display:inline;"></i></th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody id="candidates-tbody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+      </main>
+
+      <!-- Settings Overlay Modal -->
+      <div id="settings-modal" class="modal-backdrop hidden">
+        <div class="modal-content glass-panel card-header-glow animate-fade-in">
+          <div class="modal-header">
+            <div class="modal-title-wrapper">
+              <div class="icon-badge accent">
+                <i data-lucide="key" class="text-accent-primary"></i>
+              </div>
+              <h2>Configure Gemini API Key</h2>
+            </div>
+          </div>
+          <form id="settings-form" class="modal-body">
+            <p class="modal-description">
+              This application uses **Google's Gemini 1.5 Flash** for candidate profile extraction and Sentence Transformers for local matching.
+              Your API key is stored securely in your browser's local storage and passed directly in headers to the local backend.
+            </p>
+            <div class="api-key-link-wrapper">
+              <span>Don't have a key?</span>
+              <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="inline-link">
+                Get a free Gemini API Key from Google AI Studio <i data-lucide="external-link" style="width:12px; height:12px; display:inline;"></i>
+              </a>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Gemini API Key</label>
+              <input type="password" id="input-api-key" placeholder="AIzaSy..." class="form-input" />
+            </div>
+            <div id="api-validate-error" class="api-status-box error hidden">
+              <i data-lucide="alert-circle"></i>
+              <span>Invalid API key or server issue. Check key and make sure backend is running.</span>
+            </div>
+            <div id="api-validate-success" class="api-status-box success hidden">
+              <i data-lucide="check-circle"></i>
+              <span>API key validated successfully! Saving...</span>
+            </div>
+            <div class="modal-footer">
+              <button type="button" id="btn-settings-cancel" class="btn btn-secondary">Cancel</button>
+              <button type="submit" id="btn-settings-save" class="btn btn-primary">Validate & Save</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Create New Job Modal -->
+      <div id="new-job-modal" class="modal-backdrop hidden">
+        <div class="modal-content glass-panel card-header-glow animate-fade-in">
+          <div class="modal-header">
+            <div class="modal-title-wrapper">
+              <div class="icon-badge accent">
+                <i data-lucide="briefcase" class="text-accent-primary"></i>
+              </div>
+              <h2>Create New Job Position</h2>
+            </div>
+          </div>
+          <form id="new-job-form" class="modal-body">
+            <p class="modal-description">
+              Enter a name for the new job position. You can then write its description and configure its specific screening weights.
+            </p>
+            <div class="form-group">
+              <label class="form-label">Position Title</label>
+              <input type="text" id="input-job-title" placeholder="e.g. Senior Backend Engineer" class="form-input" required />
+            </div>
+            <div class="modal-footer">
+              <button type="button" id="btn-new-job-cancel" class="btn btn-secondary">Cancel</button>
+              <button type="submit" id="btn-new-job-save" class="btn btn-primary">Create Position</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Candidate Profile Drawer Sheet -->
+      <div id="detail-modal" class="detail-backdrop hidden">
+        <div class="detail-panel glass-panel card-header-glow animate-slide-in">
+          <div class="panel-header">
+            <div class="header-info">
+              <span id="detail-rec-badge" class="badge">Strong Match</span>
+              <h2 id="detail-name">Candidate Name</h2>
+              <div class="contact-details">
+                <span id="detail-email" class="contact-item"><i data-lucide="mail"></i> candidate@email.com</span>
+                <span id="detail-phone" class="contact-item"><i data-lucide="phone"></i> 123-456-7890</span>
+              </div>
+            </div>
+            <button id="btn-detail-close" class="close-btn" title="Close Panel">
+              <i data-lucide="x"></i>
+            </button>
+          </div>
+          <div class="panel-body">
+            <!-- Overall Score Banner -->
+            <div class="score-summary-banner glass-panel">
+              <div class="score-metric">
+                <span id="detail-score-large" class="score-large">92%</span>
+                <span class="score-label">Overall Match Score</span>
+              </div>
+              <div class="score-bars-container">
+                <div class="score-bar-row">
+                  <span class="bar-label">Skills</span>
+                  <div class="bar-track"><div id="bar-skills" class="bar-fill skills" style="width: 0%"></div></div>
+                  <span id="val-skills" class="bar-value">0%</span>
+                </div>
+                <div class="score-bar-row">
+                  <span class="bar-label">Experience</span>
+                  <div class="bar-track"><div id="bar-experience" class="bar-fill experience" style="width: 0%"></div></div>
+                  <span id="val-experience" class="bar-value">0%</span>
+                </div>
+                <div class="score-bar-row">
+                  <span class="bar-label">Education</span>
+                  <div class="bar-track"><div id="bar-education" class="bar-fill education" style="width: 0%"></div></div>
+                  <span id="val-education" class="bar-value">0%</span>
+                </div>
+                <div class="score-bar-row">
+                  <span class="bar-label">Culture / Fit</span>
+                  <div class="bar-track"><div id="bar-cultural" class="bar-fill culture" style="width: 0%"></div></div>
+                  <span id="val-cultural" class="bar-value">0%</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Skills Grid -->
+            <div class="section-grid">
+              <div class="skills-block glass-panel">
+                <div class="block-title text-success">
+                  <i data-lucide="check-circle-2"></i>
+                  <h3 id="title-skills-matched">Matched Skills (0)</h3>
+                </div>
+                <div id="detail-skills-matched" class="tag-cloud"></div>
+              </div>
+              <div class="skills-block glass-panel">
+                <div class="block-title text-error">
+                  <i data-lucide="alert-triangle"></i>
+                  <h3 id="title-skills-missing">Missing Skills (0)</h3>
+                </div>
+                <div id="detail-skills-missing" class="tag-cloud"></div>
+              </div>
+            </div>
+
+            <!-- Work experience details -->
+            <div class="content-section glass-panel">
+              <div class="section-header-row">
+                <i data-lucide="calendar" class="text-accent-primary"></i>
+                <h3>Work Experience</h3>
+                <span id="detail-years-badge" class="years-pill">0 Years Total</span>
+              </div>
+              <p id="detail-exp-summary" class="summary-paragraph"></p>
+            </div>
+
+            <!-- Education details -->
+            <div class="content-section glass-panel">
+              <div class="section-header-row">
+                <i data-lucide="book-open" class="text-accent-secondary"></i>
+                <h3>Education & Qualifications</h3>
+              </div>
+              <p id="detail-edu-summary" class="summary-paragraph"></p>
+            </div>
+
+            <!-- Certifications -->
+            <div id="detail-cert-section" class="content-section glass-panel hidden">
+              <div class="section-header-row">
+                <i data-lucide="star" class="text-warning"></i>
+                <h3>Certifications & Licenses</h3>
+              </div>
+              <div id="detail-certifications" class="tag-cloud" style="margin-top: 10px;"></div>
+            </div>
+
+            <!-- AI explainability report -->
+            <div class="content-section glass-panel reason-block">
+              <div class="section-header-row">
+                <i data-lucide="star" class="text-warning"></i>
+                <h3>AI Explainability & Feedback</h3>
+              </div>
+              <p id="detail-reasoning" class="reason-paragraph"></p>
+            </div>
+          </div>
+          <div class="panel-footer">
+            <button id="btn-export-profile" class="btn btn-primary btn-icon">
+              <i data-lucide="file-text"></i> Export Profile Report (TXT)
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <script src="script.js?v=2"></script>
+  </body>
+</html>
